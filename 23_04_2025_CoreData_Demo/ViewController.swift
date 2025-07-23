@@ -14,51 +14,60 @@ class ViewController: UIViewController {
         super.viewDidLoad()
 //        insertStudentRecord()
         retriveStudentRecords()
-        deleteStudentRecord()
+//      deleteStudentRecord()
         print("\n ------------------- After Deletion -------------------\n")
-        retriveStudentRecords()
-//        deleteStudentRecord()
+//      deleteStudentRecord()
 //        updateStudentRecord()
+//        retriveStudentRecords()
+    }
+    
+    func getManagedContext()->NSManagedObjectContext{
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let managedContext = appDelegate.persistentContainer.viewContext
+        return managedContext
     }
 
     func insertStudentRecord(){
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let managedContext = appDelegate.persistentContainer.viewContext
+        let mContext = getManagedContext()
         
         let studentEntity = NSEntityDescription.entity(forEntityName: "Student",
-                                                       in: managedContext)
+                                                       in: mContext)
         
-        let studentObj1 = NSManagedObject(entity: studentEntity!, insertInto: managedContext)
+        let studentObject1 = NSManagedObject(entity: studentEntity!, insertInto: mContext)
         
-        studentObj1.setValue("Saurabh", forKey: "name")
-        studentObj1.setValue("saurabh.thakare@gmail.com", forKey: "email")
+        studentObject1.setValue("student1", forKey: "name")
+        studentObject1.setValue("student110@gmail.com", forKey: "email")
         
-        
-        let studentObj2 = NSManagedObject(entity: studentEntity!, insertInto: managedContext)
-        
-        studentObj2.setValue("Sauchita", forKey: "name")
-        studentObj2.setValue("suchita.tagare@gmail.com", forKey: "email")
-        
-        for i in 1...5{
-            let studentObj = NSManagedObject(entity: studentEntity!, insertInto: managedContext)
-            studentObj.setValue("student\(i)", forKey: "name")
-            studentObj.setValue("student\(i)@gmail.com", forKey: "email")
-        }
-        
+//        let studentObj1 = NSManagedObject(entity: studentEntity!, insertInto: mContext)
+//
+//        studentObj1.setValue("Saurabh", forKey: "name")
+//        studentObj1.setValue("saurabh.thakare@gmail.com", forKey: "email")
+//        
+//
+//        let studentObj2 = NSManagedObject(entity: studentEntity!, insertInto: mContext)
+//
+//        studentObj2.setValue("Sauchita", forKey: "name")
+//        studentObj2.setValue("suchita.tagare@gmail.com", forKey: "email")
+//        
+//        for i in 1...5{
+//            let studentObj = NSManagedObject(entity: studentEntity!, insertInto: mContext)
+//            studentObj.setValue("student\(i)", forKey: "name")
+//            studentObj.setValue("student\(i)@gmail.com", forKey: "email")
+//        }
+//        
         do{
-            try managedContext.save()
+            try mContext.save()
         }catch{
             print("error occurred")
         }
     }
     
     func retriveStudentRecords(){
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let managedContext = appDelegate.persistentContainer.viewContext
+        let context1 = getManagedContext()
         
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Student")
         
-        let studentRecords = try! managedContext.fetch(fetchRequest) as! [NSManagedObject]
+        let studentRecords = try! context1.fetch(fetchRequest) as! [NSManagedObject]
         
         for eachStudentObject in studentRecords{
             let extractedName = eachStudentObject.value(forKey: "name")
@@ -68,36 +77,53 @@ class ViewController: UIViewController {
         }
         
         do{
-            try managedContext.save()
+            try context1.save()
         }catch{
             print(error)
         }
     }
     
     func deleteStudentRecord(){
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let managedContext = appDelegate.persistentContainer.viewContext
+        let context1 = getManagedContext()
         
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Student")
         let predicate1 = NSPredicate(format: "name = %@", "Sauchita")
         
         fetchRequest.predicate = predicate1
         
-        let studentRecords = try! managedContext.fetch(fetchRequest)
+        let studentRecords = try! context1.fetch(fetchRequest)
         
         let objectToBeDeleted = studentRecords[0] as! NSManagedObject
         
-        managedContext.delete(objectToBeDeleted)
+        context1.delete(objectToBeDeleted)
         
         do{
-            try managedContext.save()
+            try context1.save()
         }catch{
             print(error)
         }
     }
     
-//    func updateStudentRecord(){
-//        
-//        
-//    }
+    func updateStudentRecord(){
+        let context1 = getManagedContext()
+        
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Student")
+
+        let predicate1 = NSPredicate(format: "email = %@", "student110@gmail.com")
+        
+        fetchRequest.predicate = predicate1
+        
+        let fetchedResults = try! context1.fetch(fetchRequest) as! [NSManagedObject]
+        
+        let objectToBeUpdated = fetchedResults[0]
+        
+        objectToBeUpdated.setValue("Prajakta", forKey: "name")
+        objectToBeUpdated.setValue("prajakta.123@gmail.com", forKey: "email")
+        
+        do{
+            try context1.save()
+        }catch{
+            print(error)
+        }
+    }
 }
